@@ -1,0 +1,57 @@
+Part 1: Network Architecture 
+Topology screenshots
+
+Part 2: Protocol Security Analysis 
+
+TCP vs UDP
+TCP provides reliable communication through a three-way handshake (SYN, SYN-ACK, ACK), which establishes a connection before data is transmitted. This allows security systems to monitor session establishment and detect abnormal connection patterns. UDP, on the other hand, is connectionless and does not establish a handshake, meaning data is sent without verification of the receiver. This makes UDP faster but less secure and harder to monitor in enterprise environments.
+HTTP vs HTTPS
+HTTPS uses TLS/SSL encryption to secure communication between a client and a server. Unlike HTTP, which transmits data in plaintext, HTTPS encrypts all traffic, preventing attackers from intercepting or modifying data in transit. This protects against man-in-the-middle attacks by ensuring confidentiality, integrity, and authentication through digital certificates issued by trusted certificate authorities.
+SSH vs Telnet
+SSH replaced Telnet because Telnet transmits all data, including usernames and passwords, in plaintext, making it vulnerable to interception. SSH encrypts all communication between the client and server, protecting credentials and session data from packet sniffing attacks. This makes SSH the standard protocol for secure remote administration in enterprise networks.
+
+
+Part 3: Shellshock Vulnerability Assessment 
+Shellshock
+The Shellshock vulnerability is a flaw in the GNU Bash shell that allows remote code execution through improperly handled environment variables. In this lab the vulnerability is exploited through a CGI-enabled Apache web server, where user input is passed to the Bash shell for processing.
+The attack begins when an attacker sends a specially crafted HTTP request containing a malicious function definition in the User-Agent header. When the web server processes this request, it passes the input to Bash, which incorrectly interprets it as a function and executes the appended commands. This results in remote code execution on the OT web server.
+The LAMP stack is directly involved in this attack. Linux provides the operating system environment, Apache processes HTTP requests, and Bash executes CGI scripts. The vulnerability exists because Bash improperly handles environment variables when invoked by web applications.
+The impact of this vulnerability is severe. An attacker could gain full control of the OT web server, access SCADA configurations, move laterally into internal systems, and exfiltrate sensitive operational data. In a critical infrastructure environment, this could disrupt water treatment operations and impact public safety.
+Mitigation strategies include patching Bash to a secure version, implementing Web Application Firewalls (WAF) to block malicious payloads, and enforcing strict network segmentation between IT and OT networks. Organizations such as the SEI CERT Coordination Center coordinate vulnerability disclosure (VU#252743) to ensure timely patching and mitigation across affected systems.
+
+
+Part 4: Incident Response 
+
+
+Vulnerability Category 
+What Went Wrong 
+Missing Security Control 
+Unpatched Software 
+OT web server allowed remote code execution through CGI requests. 
+Patch management and vulnerability scanning system. 
+Network Segmentation 
+OT web server was directly reachable from external attacker, allowing lateral movement into internal SCADA environment. 
+Strict network segmentation / firewall rules isolating OT systems from public-facing services. 
+Access Controls 
+Compromised server allowed unauthorized SSH sessions and internal access without proper privilege restrictions. 
+Least privilege access control and MFA for administrative access. 
+Monitoring & Detection 
+Large data transfer (2.3 GB) and unauthorized SSH activity were not blocked immediately. 
+SIEM monitoring with real-time anomaly detection and alerting. 
+
+
+
+Remediation Plan
+
+Immediate containment should involve isolating the OT network from all external connections to prevent further compromise. All affected systems should be taken offline, and forensic data including logs and memory snapshots should be preserved for investigation. Compromised credentials must be reset immediately to prevent further unauthorized access.
+Short term fixes should include applying patches to eliminate the Shellshock vulnerability across all affected systems. Firewall rules should be updated to restrict unnecessary inbound and outbound traffic. Logging and monitoring systems should be enabled to improve visibility into network activity.
+Long term improvements should focus on implementing a zero trust architecture, where no device is trusted by default. Strong network segmentation between IT and OT environments should be enforced to prevent lateral movement. The principle of least privilege should be applied to all accounts and services, limiting access to only what is necessary.
+Monitoring and detection should include the deployment of a SIEM system capable of real time analysis of network traffic and system logs. Behavioral analytics should be used to detect anomalies such as unusual data transfers or unauthorized access attempts.
+Organizational improvements should include formalizing patch management policies to ensure timely updates of all systems. Incident response procedures should be regularly tested and updated. Additionally, cybersecurity training should be provided to both IT and OT staff to improve awareness of threats targeting critical infrastructure systems.
+
+Reflection
+
+This lab demonstrated how different layers of the OSI model work together to support both communication and security in enterprise networks. It highlighted how vulnerabilities at the application layer, such as Shellshock, can lead to full system compromise when combined with misconfigured services.
+The separation of IT and OT networks emphasized the importance of segmentation in protecting critical infrastructure. Without proper isolation, attackers can move laterally from a compromised web server into operational systems, potentially disrupting essential services such as water treatment operations.
+The lab also reinforced the importance of secure communication protocols. SSH and HTTPS provide encryption that protects against interception, unlike insecure protocols such as Telnet and HTTP. These security mechanisms are essential in preventing unauthorized access and data theft.
+Overall, this exercise improved my understanding of how real-world cyberattacks occur and how layered defenses are necessary to protect complex systems. It also demonstrated how small misconfigurations or unpatched vulnerabilities can have significant impacts on critical infrastructure environments.
